@@ -1,14 +1,15 @@
 <?php
+
 declare(strict_types=1);
 
-namespace App\Notification;
+namespace App\Interfaces;
 
 /**
- * Интерфейс запроса на создание канала отправки сообщений
+ * Запрос на создание канала отправки сообщений
  *
  * @package App\Notification
  */
-interface CreateChannelRequestInterface
+interface CreateNotificationChannelRequestInterface
 {
     /**
      * @return string Название канала отправки

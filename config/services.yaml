@@ -24,14 +24,3 @@ services:
   App\RequestResolver\RequestValueResolver:
     tags:
       - { name: controller.argument_value_resolver }
-
-  App\Service\AbstractService:
-    abstract: true
-    calls:
-      - setValidator: [ '@validator' ]
-
-  App\Service\Notification\CreateChannelService:
-    parent: App\Service\AbstractService
-
-  App\Notification\Fake\FakeSender:
-    parent: App\Service\AbstractService

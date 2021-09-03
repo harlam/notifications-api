@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service;
@@ -6,7 +7,7 @@ namespace App\Service;
 use App\Interfaces\SecretKeyGeneratorInterface;
 use Exception;
 
-class SecretKeyGenerator implements SecretKeyGeneratorInterface
+final class SecretKeyGenerator implements SecretKeyGeneratorInterface
 {
     /**
      * @throws Exception

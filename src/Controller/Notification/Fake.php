@@ -2,14 +2,17 @@
 
 namespace App\Controller\Notification;
 
+use App\Interfaces\CreateNotificationChannelInterface;
 use App\Notification\Fake\CreateFakeChannelRequest;
 use App\Notification\Fake\FakeMessage;
-use App\Notification\Fake\FakeSenderInterface;
-use App\Service\Notification\CreateChannelServiceInterface;
+use App\Notification\Fake\FakeSender;
+use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -18,13 +21,13 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class Fake extends AbstractController
 {
-    protected FakeSenderInterface $fakeSender;
-    protected CreateChannelServiceInterface $createChannelService;
+    protected FakeSender $fakeSender;
+    protected CreateNotificationChannelInterface $createChannelService;
     protected DenormalizerInterface $serializer;
 
     public function __construct(
-        FakeSenderInterface $fakeSender,
-        CreateChannelServiceInterface $createChannelService,
+        FakeSender $fakeSender,
+        CreateNotificationChannelInterface $createChannelService,
         SerializerInterface $serializer
     )
     {
@@ -46,11 +49,15 @@ class Fake extends AbstractController
     }
 
     /**
-     * @Route(path="/channel/{channelKey}", methods={"POST"}, name="notification.fake.send_via_channel")
+     * @Route(path="/channel/{key}", methods={"POST"}, name="notification.fake.send_via_channel")
+     *
+     * @throws EntityNotFoundException
+     * @throws NonUniqueResultException
+     * @throws ExceptionInterface
      */
-    public function send(string $channelKey, FakeMessage $message): Response
+    public function send(string $key, FakeMessage $message): Response
     {
-        $this->fakeSender->send($channelKey, $message);
+        $this->fakeSender->send($key, $message);
 
         return new JsonResponse(null, 201);
     }

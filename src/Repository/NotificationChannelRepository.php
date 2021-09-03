@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\NotificationChannel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -29,32 +31,30 @@ class NotificationChannelRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
     }
 
-    // /**
-    //  * @return NotificationChannel[] Returns an array of NotificationChannel objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function findByKey(string $key): ?NotificationChannel
     {
-        return $this->createQueryBuilder('n')
-            ->andWhere('n.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('n.id', 'ASC')
-            ->setMaxResults(10)
+        return $this->createQueryBuilder('channel')
+            ->andWhere('channel.key = :key')
+            ->setParameter('key', $key)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getOneOrNullResult();
     }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?NotificationChannel
+    /**
+     * @throws EntityNotFoundException
+     * @throws NonUniqueResultException
+     */
+    public function getByKey(string $key): NotificationChannel
     {
-        return $this->createQueryBuilder('n')
-            ->andWhere('n.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $result = $this->findByKey($key);
+
+        if (null === $result) {
+            throw new EntityNotFoundException();
+        }
+
+        return $result;
     }
-    */
 }

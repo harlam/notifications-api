@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Notification\Fake;
@@ -8,7 +9,7 @@ namespace App\Notification\Fake;
  *
  * @package App\Notification\Fake
  */
-final class FakeChannelParams
+final class FakeChannelConfiguration
 {
     protected string $baseUri;
 
