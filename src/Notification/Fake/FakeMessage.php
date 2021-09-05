@@ -1,17 +1,23 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Notification\Fake;
 
 use App\Interfaces\RequestInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 final class FakeMessage implements RequestInterface
 {
     /**
-     * @var string[]
+     * @Assert\Type(type="array")
+     * @Assert\Count(min=1)
      */
     protected array $recipients;
 
+    /**
+     * @Assert\NotBlank
+     */
     protected string $message;
 
     public function __construct(string $message, string ...$recipients)

@@ -2,19 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\Notification;
+namespace App\Service;
 
 use App\Entity\NotificationChannel;
 use App\Exception\RequestValidationException;
-use App\Interfaces\CreateNotificationChannelRequestInterface;
 use App\Interfaces\CreateNotificationChannelInterface;
 use App\Interfaces\RequestValidatorInterface;
 use App\Interfaces\SecretKeyGeneratorInterface;
+use App\Notification\AbstractCreateChannelRequest;
 use App\Repository\NotificationChannelRepository;
 use Exception;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
+/**
+ * Создание канала отправки оповещений с заданной конфигурацией
+ */
 final class CreateNotificationChannel implements CreateNotificationChannelInterface
 {
     protected RequestValidatorInterface $requestValidator;
@@ -40,14 +43,14 @@ final class CreateNotificationChannel implements CreateNotificationChannelInterf
      * @throws Exception
      * @throws ExceptionInterface
      */
-    public function create(CreateNotificationChannelRequestInterface $request): NotificationChannel
+    public function create(AbstractCreateChannelRequest $request): NotificationChannel
     {
         $this->requestValidator->assertValid($request);
 
         $notificationChannel = (new NotificationChannel(
             $this->secretKeyGenerator->generate(),
             $request->getName(),
-            $this->buildParams($request)
+            $this->buildConfiguration($request)
         ))->setDescription($request->getDescription());
 
         $this->repository->store($notificationChannel);
@@ -59,14 +62,14 @@ final class CreateNotificationChannel implements CreateNotificationChannelInterf
      * @throws ExceptionInterface
      * @throws Exception
      */
-    protected function buildParams(CreateNotificationChannelRequestInterface $request): ?array
+    protected function buildConfiguration(AbstractCreateChannelRequest $request): ?array
     {
-        $params = ($p = $request->getParams()) === null ? null : $this->normalizer->normalize($p);
+        $configuration = ($c = $request->getConfiguration()) === null ? null : $this->normalizer->normalize($c);
 
-        if (is_array($params) || is_null($params)) {
-            return $params;
+        if (is_array($configuration) || is_null($configuration)) {
+            return $configuration;
         }
 
-        throw new Exception('Bad params type');
+        throw new Exception('Configuration build error');
     }
 }

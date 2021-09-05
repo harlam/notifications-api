@@ -4,22 +4,38 @@ declare(strict_types=1);
 
 namespace App\Notification\Fake;
 
+use Symfony\Component\Validator\Constraints as Assert;
+
 /**
- * Параметры канала отправки сообщений
+ * Параметры fake-канала отправки сообщений
  *
  * @package App\Notification\Fake
  */
 final class FakeChannelConfiguration
 {
+    /**
+     * @Assert\NotBlank()
+     * @Assert\Url()
+     * @Assert\Length(max=255, min=16)
+     */
     protected string $baseUri;
 
+    /**
+     * @Assert\NotBlank()
+     * @Assert\Length(max=255)
+     */
     protected string $username;
 
+    /**
+     * @Assert\NotBlank()
+     * @Assert\Length(max=255, min=8)
+     */
     protected string $password;
 
+    /**
+     * @Assert\Length(max=8, min=3)
+     */
     protected ?string $sender = null;
-
-    protected bool $debugEnabled = false;
 
     public function __construct(string $baseUri, string $username, string $password)
     {
@@ -51,17 +67,6 @@ final class FakeChannelConfiguration
     public function setSender(string $sender): self
     {
         $this->sender = $sender;
-        return $this;
-    }
-
-    public function isDebugEnabled(): bool
-    {
-        return $this->debugEnabled;
-    }
-
-    public function setDebugEnabled(bool $debugEnabled): self
-    {
-        $this->debugEnabled = $debugEnabled;
         return $this;
     }
 }

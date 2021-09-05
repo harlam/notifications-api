@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Notification;
 
-use App\Interfaces\CreateNotificationChannelRequestInterface;
 use App\Interfaces\RequestInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-abstract class AbstractCreateChannelRequest implements RequestInterface, CreateNotificationChannelRequestInterface
+/**
+ * Запрос на создание канала отправки оповещений
+ */
+abstract class AbstractCreateChannelRequest implements RequestInterface
 {
     /**
      * @Assert\NotBlank()
@@ -23,6 +25,9 @@ abstract class AbstractCreateChannelRequest implements RequestInterface, CreateN
         $this->name = $name;
     }
 
+    /**
+     * @return string Название канала отправки
+     */
     public function getName(): string
     {
         return $this->name;
@@ -34,8 +39,16 @@ abstract class AbstractCreateChannelRequest implements RequestInterface, CreateN
         return $this;
     }
 
+    /**
+     * @return string|null Описание канала
+     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
+
+    /**
+     * @return object|null Конфигурация канала
+     */
+    abstract public function getConfiguration(): ?object;
 }

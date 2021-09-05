@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Notification\Fake;
 
 use App\Notification\AbstractNotificationSender;
+use App\Notification\AbstractNotificationResult;
+use App\Notification\BaseNotificationResult;
 
-final class FakeSender extends AbstractNotificationSender
+final class FakeNotificationSender extends AbstractNotificationSender
 {
     protected function getMessageClass(): string
     {
@@ -22,9 +24,9 @@ final class FakeSender extends AbstractNotificationSender
      * @param object|FakeMessage $message
      * @param object|FakeChannelConfiguration $configuration
      */
-    protected function process(object $message, object $configuration): void
+    protected function process(object $message, object $configuration): AbstractNotificationResult
     {
-        var_dump('process message via sender: ' . $configuration->getSender());
-        exit;
+        return (new BaseNotificationResult(true))
+            ->setDetailedMessage("processed success via sender: " . $configuration->getSender());
     }
 }

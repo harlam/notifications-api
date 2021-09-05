@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Notification;
 
 use App\Interfaces\CreateNotificationChannelInterface;
 use App\Notification\Fake\CreateFakeChannelRequest;
 use App\Notification\Fake\FakeMessage;
-use App\Notification\Fake\FakeSender;
+use App\Notification\Fake\FakeNotificationSender;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,12 +23,12 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class Fake extends AbstractController
 {
-    protected FakeSender $fakeSender;
+    protected FakeNotificationSender $fakeSender;
     protected CreateNotificationChannelInterface $createChannelService;
     protected DenormalizerInterface $serializer;
 
     public function __construct(
-        FakeSender $fakeSender,
+        FakeNotificationSender $fakeSender,
         CreateNotificationChannelInterface $createChannelService,
         SerializerInterface $serializer
     )
@@ -57,8 +59,8 @@ class Fake extends AbstractController
      */
     public function send(string $key, FakeMessage $message): Response
     {
-        $this->fakeSender->send($key, $message);
-
-        return new JsonResponse(null, 201);
+        return JsonResponse::fromJsonString(
+            $this->serializer->serialize($this->fakeSender->send($key, $message), 'json')
+        );
     }
 }

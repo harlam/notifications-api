@@ -40,7 +40,7 @@ abstract class AbstractNotificationSender implements NotificationSenderInterface
 
     abstract protected function getConfigurationClass(): string;
 
-    abstract protected function process(object $message, object $configuration): void;
+    abstract protected function process(object $message, object $configuration): AbstractNotificationResult;
 
     /**
      * @throws EntityNotFoundException
@@ -48,7 +48,7 @@ abstract class AbstractNotificationSender implements NotificationSenderInterface
      * @throws ExceptionInterface
      * @throws ValidationException
      */
-    public function send(string $channelKey, object $message): void
+    public function send(string $channelKey, object $message): AbstractNotificationResult
     {
         $this->assertMessageValid($message);
 
@@ -56,7 +56,7 @@ abstract class AbstractNotificationSender implements NotificationSenderInterface
             $this->channelRepository->getByKey($channelKey)
         );
 
-        $this->process($message, $configuration);
+        return $this->process($message, $configuration);
     }
 
     /**
@@ -94,7 +94,7 @@ abstract class AbstractNotificationSender implements NotificationSenderInterface
      */
     protected function getConfiguration(NotificationChannel $channel): ?object
     {
-        $rawConfiguration = ($p = $channel->getParams()) === null ? [] : $p;
+        $rawConfiguration = ($c = $channel->getConfiguration()) === null ? [] : $c;
 
         $configuration = $this->denormalizer->denormalize($rawConfiguration, $this->getConfigurationClass());
 

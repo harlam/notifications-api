@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\NotificationChannelRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -18,12 +19,17 @@ class NotificationChannel
     private ?int $id = null;
 
     /**
-     * @ORM\Column(type="string", length=64)
+     * @ORM\Column(type="datetime_immutable", nullable=false)
+     */
+    private DateTimeImmutable $createdAt;
+
+    /**
+     * @ORM\Column(type="string", length=128)
      */
     private string $key;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=false)
      */
     private string $name;
 
@@ -35,18 +41,29 @@ class NotificationChannel
     /**
      * @ORM\Column(type="json", nullable=true)
      */
-    private ?array $params;
+    private ?array $configuration;
 
-    public function __construct(string $key, string $name, ?array $params = null)
+    /**
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    private bool $isActive = true;
+
+    public function __construct(string $key, string $name, ?array $configuration = null)
     {
         $this->key = $key;
         $this->name = $name;
-        $this->params = $params;
+        $this->configuration = $configuration;
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getCreatedAt(): DateTimeImmutable
+    {
+        return $this->createdAt;
     }
 
     public function getKey(): string
@@ -59,9 +76,9 @@ class NotificationChannel
         return $this->name;
     }
 
-    public function getParams(): ?array
+    public function getConfiguration(): ?array
     {
-        return $this->params;
+        return $this->configuration;
     }
 
     public function setDescription(?string $description): self
@@ -73,5 +90,16 @@ class NotificationChannel
     public function getDescription(): ?string
     {
         return $this->description;
+    }
+
+    public function setIsActive(bool $active): self
+    {
+        $this->isActive = $active;
+        return $this;
+    }
+
+    public function getIsActive(): bool
+    {
+        return $this->isActive;
     }
 }
