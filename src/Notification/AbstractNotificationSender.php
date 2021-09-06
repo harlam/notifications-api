@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Notification;
 
 use App\Entity\NotificationChannel;
+use App\Event\NotificationMessageSentEvent;
 use App\Exception\RequestValidationException;
 use App\Exception\ValidationException;
 use App\Interfaces\NotificationSenderInterface;
@@ -12,6 +13,7 @@ use App\Interfaces\RequestValidatorInterface;
 use App\Repository\NotificationChannelRepository;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -22,18 +24,21 @@ abstract class AbstractNotificationSender implements NotificationSenderInterface
     protected ValidatorInterface $validator;
     protected NotificationChannelRepository $channelRepository;
     protected DenormalizerInterface $denormalizer;
+    protected EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         RequestValidatorInterface $requestValidator,
         ValidatorInterface $validator,
         NotificationChannelRepository $channelRepository,
-        DenormalizerInterface $denormalizer
+        DenormalizerInterface $denormalizer,
+        EventDispatcherInterface $eventDispatcher
     )
     {
         $this->requestValidator = $requestValidator;
         $this->validator = $validator;
         $this->channelRepository = $channelRepository;
         $this->denormalizer = $denormalizer;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     abstract protected function getMessageClass(): string;
@@ -52,11 +57,19 @@ abstract class AbstractNotificationSender implements NotificationSenderInterface
     {
         $this->assertMessageValid($message);
 
-        $configuration = $this->getConfiguration(
-            $this->channelRepository->getByKey($channelKey)
+        $channel = $this->getNotificationChannel($channelKey);
+
+        $configuration = $this->getConfiguration($channel);
+
+        $this->assertConfigurationValid($configuration);
+
+        $result = $this->process($message, $configuration);
+
+        $this->eventDispatcher->dispatch(
+            new NotificationMessageSentEvent($channel, $message, $result)
         );
 
-        return $this->process($message, $configuration);
+        return $result;
     }
 
     /**
@@ -89,17 +102,25 @@ abstract class AbstractNotificationSender implements NotificationSenderInterface
     }
 
     /**
+     * @throws EntityNotFoundException
+     * @throws NonUniqueResultException
+     */
+    protected function getNotificationChannel(string $channelKey): NotificationChannel
+    {
+        return $this->channelRepository->getByKey($channelKey);
+    }
+
+    /**
      * @throws ExceptionInterface
-     * @throws ValidationException
      */
     protected function getConfiguration(NotificationChannel $channel): ?object
     {
-        $rawConfiguration = ($c = $channel->getConfiguration()) === null ? [] : $c;
+        $rawConfiguration = $channel->getConfiguration();
 
-        $configuration = $this->denormalizer->denormalize($rawConfiguration, $this->getConfigurationClass());
+        if ($rawConfiguration === null) {
+            return null;
+        }
 
-        $this->assertConfigurationValid($configuration);
-
-        return $configuration;
+        return $this->denormalizer->denormalize($rawConfiguration, $this->getConfigurationClass());
     }
 }
