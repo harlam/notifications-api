@@ -97,7 +97,7 @@ abstract class AbstractNotificationSender implements NotificationSenderInterface
         $errors = $this->validator->validate($configuration);
 
         if (count($errors) > 0) {
-            throw ValidationException::create($errors, 'Sender configuration is incorrect');
+            throw new ValidationException('Sender configuration is incorrect');
         }
     }
 

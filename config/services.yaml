@@ -21,10 +21,19 @@ services:
       - '../src/Kernel.php'
       - '../src/Tests/'
 
-  App\EventListener\:
-    resource: ../src/EventListener/*
-    tags: [ kernel.event_listener ]
-
+  # Request resolver
   App\RequestResolver\RequestValueResolver:
     tags:
       - { name: controller.argument_value_resolver }
+
+  # --- Listeners ---
+
+  # After notification sent
+  App\EventListener\ProcessSentNotificationListener:
+    tags:
+      - { name: kernel.event_listener }
+
+  # Handle RequestExceptionInterface
+  App\EventListener\RequestExceptionHandleListener:
+    tags:
+      - { name: kernel.event_listener, event: kernel.exception, priority: 2048 }

@@ -2,8 +2,13 @@
 
 namespace App\Exception;
 
-use Symfony\Component\HttpFoundation\Exception\RequestExceptionInterface;
+use App\Interfaces\ClientExceptionInterface;
+use Throwable;
 
-class RequestValidationException extends ValidationException implements RequestExceptionInterface
+class RequestValidationException extends ValidationException implements ClientExceptionInterface
 {
+    public function __construct($message = "", $code = 400, Throwable $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
 }

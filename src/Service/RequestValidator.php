@@ -25,12 +25,13 @@ final class RequestValidator implements RequestValidatorInterface
     /**
      * @throws RequestValidationException
      */
-    public function assertValid(object $object, $constraints = null, $groups = null): void
+    public function assertValid(object $object, $message = 'Validation error', $constraints = null, $groups = null): void
     {
         $errors = $this->getValidator()->validate($object, $constraints, $groups);
 
         if (count($errors) > 0) {
-            throw RequestValidationException::create($errors, 'Request validation error');
+            throw (new RequestValidationException($message))
+                ->setViolations($errors);
         }
     }
 }

@@ -14,5 +14,5 @@ interface RequestValidatorInterface
     /**
      * @throws RequestValidationException
      */
-    public function assertValid(object $object, $constraints = null, $groups = null): void;
+    public function assertValid(object $object, string $message = 'Validation error', $constraints = null, $groups = null): void;
 }

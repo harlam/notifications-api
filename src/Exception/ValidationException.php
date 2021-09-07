@@ -1,34 +1,51 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Exception;
 
-use RuntimeException;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
-use Throwable;
 
-class ValidationException extends RuntimeException
+class ValidationException extends AppException
 {
     protected ?ConstraintViolationListInterface $violationList = null;
 
-    public function __construct($message = "", $code = 0, Throwable $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
-    }
+    protected ?array $violationArray = null;
 
-    public function setValidationError(ConstraintViolationListInterface $violationList): self
+    public function setViolations(ConstraintViolationListInterface $violationList): self
     {
         $this->violationList = $violationList;
         return $this;
     }
 
-    public function getValidationError(): ?ConstraintViolationListInterface
+    public function getViolations(): ?ConstraintViolationListInterface
     {
         return $this->violationList;
     }
 
-    public static function create(ConstraintViolationListInterface $violationList, $message = "", $code = 0, Throwable $previous = null): self
+    public function getViolationsAsArray(): array
     {
-        return (new self($message, $code, $previous))
-            ->setValidationError($violationList);
+        if (null === $this->violationArray) {
+            $this->violationArray = $this->violationsToArray($this->violationList);
+        }
+
+        return $this->violationArray;
+    }
+
+    protected function violationsToArray(?ConstraintViolationListInterface $violations): array
+    {
+        if (null === $violations) {
+            return [];
+        }
+
+        $messages = [];
+
+        /** @var ConstraintViolationInterface $constraint */
+        foreach ($violations as $constraint) {
+            $messages[$constraint->getPropertyPath()][] = $constraint->getMessage();
+        }
+
+        return $messages;
     }
 }

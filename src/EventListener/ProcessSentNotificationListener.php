@@ -4,33 +4,59 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
+use App\Entity\NotificationLog;
 use App\Event\NotificationMessageSentEvent;
-use RuntimeException;
-use Symfony\Component\Serializer\SerializerInterface;
+use App\Exception\AppException;
+use App\Repository\NotificationLogRepository;
+use Doctrine\ORM\ORMException;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class ProcessSentNotificationListener
+final class ProcessSentNotificationListener
 {
-    protected SerializerInterface $serializer;
+    protected NormalizerInterface $normalizer;
+    protected NotificationLogRepository $notificationLogRepository;
 
-    public function __construct(SerializerInterface $serializer)
+    public function __construct(NormalizerInterface $normalizer, NotificationLogRepository $notificationLogRepository)
     {
-        $this->serializer = $serializer;
+        $this->normalizer = $normalizer;
+        $this->notificationLogRepository = $notificationLogRepository;
     }
 
+    /**
+     * @param NotificationMessageSentEvent $event
+     * @throws ORMException
+     * @throws ExceptionInterface
+     */
     public function __invoke(NotificationMessageSentEvent $event)
     {
-        $this->log(
-            sprintf(
-                'Notification result: %s for message: %s via channel: %s' . PHP_EOL,
-                $this->serializer->serialize($event->getNotificationResult(), 'json'),
-                $this->serializer->serialize($event->getMessage(), 'json'),
-                $event->getNotificationChannel()->getKey()
-            )
-        );
+        try {
+            $this->notificationLogRepository->store(
+                $this->buildNotificationLog($event)
+            );
+        } catch (AppException $appException) {
+            return;
+        }
     }
 
-    protected function log(string $message): void
+    /**
+     * @throws ExceptionInterface
+     */
+    protected function buildNotificationLog(NotificationMessageSentEvent $event): NotificationLog
     {
-        throw new RuntimeException('Not implemented. Message: ' . $message);
+        $message = $this->normalizer->normalize($event->getMessage());
+
+        if (false === is_array($message)) {
+            throw new AppException("Can't normalize notification message");
+        }
+
+        $result = $this->normalizer->normalize($event->getNotificationResult());
+
+        if (false === (is_array($result) || is_null($result))) {
+            throw new AppException("Can't normalize notification result");
+        }
+
+        return (new NotificationLog($event->getNotificationChannel(), $message))
+            ->setResult($result);
     }
 }
