@@ -2,12 +2,12 @@
 
 namespace App\Notification\Fake;
 
-use App\Notification\AbstractSender;
+use App\Notification\AbstractSenderService;
 use Notification\Common\SenderInterface;
 use Notification\Fake\FakeMessage;
 use Notification\Fake\FakeSenderConfiguration;
 
-final class FakeSender extends AbstractSender
+final class FakeSender extends AbstractSenderService implements FakeSenderServiceInterface
 {
     protected function getSupportedMessages(): array
     {

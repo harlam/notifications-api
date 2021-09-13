@@ -10,13 +10,14 @@ use App\Exception\RequestValidationException;
 use App\Exception\ValidationException;
 use App\Interfaces\ChannelStorageInterface;
 use App\Interfaces\RequestValidatorInterface;
+use App\Interfaces\SenderServiceInterface;
 use Notification\Common\NotificationResultInterface;
 use Notification\Common\SenderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
-abstract class AbstractSender
+abstract class AbstractSenderService implements SenderServiceInterface
 {
     protected RequestValidatorInterface $validator;
 

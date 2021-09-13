@@ -7,13 +7,12 @@ namespace App\Controller\Notification;
 use App\Interfaces\ChannelStorageInterface;
 
 use App\Notification\Fake\CreateFakeChannelRequest;
-use App\Notification\Fake\FakeSender;
+use App\Notification\Fake\FakeSenderServiceInterface;
 use Notification\Fake\FakeMessage;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -22,12 +21,12 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class Fake extends AbstractController
 {
-    protected FakeSender $fakeSender;
+    protected FakeSenderServiceInterface $fakeSender;
     protected ChannelStorageInterface $channelStorage;
     protected DenormalizerInterface $serializer;
 
     public function __construct(
-        FakeSender $fakeSender,
+        FakeSenderServiceInterface $fakeSender,
         ChannelStorageInterface $channelStorage,
         SerializerInterface $serializer
     )
@@ -49,8 +48,6 @@ class Fake extends AbstractController
 
     /**
      * @Route(path="/channel/{key}", methods={"POST"}, name="notification.fake.send_via_channel")
-     *
-     * @throws ExceptionInterface
      */
     public function send(string $key, FakeMessage $message): Response
     {
