@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Throwable;
 
-class RequestExceptionHandleListener
+class HandleClientExceptionListener
 {
     public function __invoke(ExceptionEvent $event)
     {

@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace App\Event;
 
 use App\Entity\NotificationChannel;
-use App\Notification\AbstractNotificationResult;
+use Notification\Common\NotificationResultInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
-final class NotificationMessageSentEvent extends Event
+final class MessageSentEvent extends Event
 {
     protected NotificationChannel $notificationChannel;
 
     protected object $message;
 
-    protected AbstractNotificationResult $notificationResult;
+    protected NotificationResultInterface $notificationResult;
 
-    public function __construct(NotificationChannel $notificationChannel, object $message, AbstractNotificationResult $notificationResult)
+    public function __construct(NotificationChannel $notificationChannel, object $message, NotificationResultInterface $notificationResult)
     {
         $this->notificationChannel = $notificationChannel;
         $this->message = $message;
@@ -33,7 +33,7 @@ final class NotificationMessageSentEvent extends Event
         return $this->message;
     }
 
-    public function getNotificationResult(): AbstractNotificationResult
+    public function getNotificationResult(): NotificationResultInterface
     {
         return $this->notificationResult;
     }

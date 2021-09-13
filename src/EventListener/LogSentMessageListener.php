@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\EventListener;
 
 use App\Entity\NotificationLog;
-use App\Event\NotificationMessageSentEvent;
+use App\Event\MessageSentEvent;
 use App\Exception\AppException;
 use App\Repository\NotificationLogRepository;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class ProcessSentNotificationListener
+final class LogSentMessageListener
 {
     protected NormalizerInterface $normalizer;
     protected NotificationLogRepository $notificationLogRepository;
@@ -24,11 +24,11 @@ final class ProcessSentNotificationListener
     }
 
     /**
-     * @param NotificationMessageSentEvent $event
+     * @param MessageSentEvent $event
      * @throws ORMException
      * @throws ExceptionInterface
      */
-    public function __invoke(NotificationMessageSentEvent $event)
+    public function __invoke(MessageSentEvent $event)
     {
         try {
             $this->notificationLogRepository->store(
@@ -42,7 +42,7 @@ final class ProcessSentNotificationListener
     /**
      * @throws ExceptionInterface
      */
-    protected function buildNotificationLog(NotificationMessageSentEvent $event): NotificationLog
+    protected function buildNotificationLog(MessageSentEvent $event): NotificationLog
     {
         $message = $this->normalizer->normalize($event->getMessage());
 

@@ -26,14 +26,12 @@ services:
     tags:
       - { name: controller.argument_value_resolver }
 
-  # --- Listeners ---
-
-  # After notification sent
-  App\EventListener\ProcessSentNotificationListener:
+  # Log after message sent
+  App\EventListener\LogSentMessageListener:
     tags:
       - { name: kernel.event_listener }
 
-  # Handle RequestExceptionInterface
-  App\EventListener\RequestExceptionHandleListener:
+  # Handle client exceptions
+  App\EventListener\HandleClientExceptionListener:
     tags:
       - { name: kernel.event_listener, event: kernel.exception, priority: 2048 }

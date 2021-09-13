@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\RequestResolver;
 
 use App\Exception\RequestValidationException;
-use App\Interfaces\RequestInterface;
+use Notification\Common\RequestInterface;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\HttpFoundation\Request;

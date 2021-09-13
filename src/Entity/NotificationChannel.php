@@ -39,16 +39,16 @@ class NotificationChannel
     private ?string $description;
 
     /**
-     * @ORM\Column(type="json", nullable=true)
+     * @ORM\Column(type="json", nullable=false)
      */
-    private ?array $configuration;
+    private array $configuration;
 
     /**
      * @ORM\Column(type="boolean", nullable=false)
      */
     private bool $isActive = true;
 
-    public function __construct(string $key, string $name, ?array $configuration = null)
+    public function __construct(string $key, string $name, array $configuration)
     {
         $this->key = $key;
         $this->name = $name;
@@ -76,7 +76,7 @@ class NotificationChannel
         return $this->name;
     }
 
-    public function getConfiguration(): ?array
+    public function getConfiguration(): array
     {
         return $this->configuration;
     }
